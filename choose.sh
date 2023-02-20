@@ -50,33 +50,47 @@ function choose.run(){
     tput sc; tput civis 
     showChoose
 
+    local indexChange=0
     while true
     do
-        escape_char=$(printf "\u1b")
-        read -rsn1 mode # get 1 character
-        if [[ $mode == $escape_char ]]; then
-            read -rsn2 mode # read 2 more chars
+
+        read -sn1 -p "" key
+        if [[ $key == $'\e' ]] ; then
+            read -sn1 -t 0.01 key
+            if [[ "$key" == "[" ]] ; then
+                read -sn1 -t 0.01 key
+                case $key in
+                    A)
+                        ((mChooseIndex--))
+                        indexChange=1
+                        ;;
+                    B)
+                        ((mChooseIndex++))
+                        indexChange=1
+                        ;;
+                esac
+            fi
         fi
-        case $mode in
-            '[A') ((mChooseIndex--)) ;;
-            '[B') ((mChooseIndex++)) ;;
-        esac
 
 
         if [[ $mChooseIndex -lt 0 ]]; then
             mChooseIndex=0
+            indexChange=0
         fi
 
         if [[ $mChooseIndex -gt $mChooseMaxIndex ]]; then
             mChooseIndex=$mChooseMaxIndex
+            indexChange=0
         fi
 
 
-        tput rc
-
-        showChoose
+        if [[ $indexChange == 1 ]]; then
+            indexChange=0
+            tput rc
+            showChoose
+        fi
 
     done
 
-    tput el; tput cnorm
+    tput cnorm;
 }
