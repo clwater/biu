@@ -53,22 +53,26 @@ fi
 # ===bad way===
 optFirst=$1
 
-if [[ -f .temp_* ]]; then
+# if [[ -f .temp_* ]]; then
     rm .temp_*
-fi
+# fi
 
-pid=$$
-tempFile=".temp_""$pid"
+# pid=$$
+# tempFile=".temp_""$pid"
+tempFile=".temp_0000"
+
 touch $tempFile
 
 isFirst=1
 while [ -n "$1" ]
 do
-    if [ $isFirst != 0 ]; then
-        isFirst=1
+    if [ $isFirst == 0 ]; then
         echo "$1" >> $tempFile
         shift
         continue
+    else
+        isFirst=0
+        shift
     fi
 
 done
