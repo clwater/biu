@@ -20,3 +20,8 @@ function utils.readArrow(){
         '[C') echo $UitlsKeyRight ;;
     esac
 }
+
+# get terminal size
+UitlsCols=$(tput cols)
+# ready clear line
+UitlsEmptyLine=$(printf "%""$UitlsCols"s "")

@@ -53,13 +53,13 @@ fi
 # ===bad way===
 optFirst=$1
 
-# if [[ -f .temp_* ]]; then
+if [[ -f .temp_* ]]; then
     rm .temp_*
-# fi
+fi
 
-# pid=$$
-# tempFile=".temp_""$pid"
-tempFile=".temp_0000"
+pid=$$
+tempFile=".temp_""$pid"
+# tempFile=".temp_0000"
 
 touch $tempFile
 
@@ -77,6 +77,10 @@ do
 
 done
 # ===bad way===
+
+
+# config some info
+
 
 
 # run command
