@@ -50,18 +50,28 @@ fi
 # but It can not transfer char ", 
 # so I use a bad way to transfer params to other function
 
-# ===bad way===
-optFirst=$1
+# besides, I find i can not return value from function,
+# besuse if i use return code, the I/O is block, and terminal can not show
+# so, I only can use file to save the function's return value
+# when you need get the value, you need invoke the get function
 
-if [[ -f .temp_* ]]; then
-    rm .temp_*
+# ===bad way===
+badRetuenValue=""
+if [ -f $UitlsRetuen ]; then
+    badRetuenValue=$(cat $UitlsRetuen)
 fi
 
+
+optFirst=$1
+
+utils.cache
+
 pid=$$
-tempFile=".temp_""$pid"
-# tempFile=".temp_0000"
+tempFile=".temp/""$pid"
+# tempFile=".temp/0000"
 
 touch $tempFile
+
 
 isFirst=1
 while [ -n "$1" ]
@@ -82,12 +92,11 @@ done
 # config some info
 
 
-
 # run command
 case "$optFirst" in
     choose)
         choose.run $tempFile
         ;;
+    get)
+        echo $badRetuenValue
 esac
-
-rm $tempFile

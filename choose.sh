@@ -81,7 +81,7 @@ function choose.run(){
         read -sn1 -p "" key
         if [[ $key = "" ]]; then 
             clearChoose
-            echo "${mChooseParams[$mChooseIndex]}"
+            echo "${mChooseParams[$mChooseIndex]}" > $UitlsRetuen
             break;
         fi
         # read key, check up, down
@@ -98,9 +98,6 @@ function choose.run(){
                     B)
                         ((mChooseIndex++))
                         indexChange=1
-                        ;;
-                    "")
-                        echo "enter"
                         ;;
                 esac
             fi

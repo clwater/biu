@@ -24,8 +24,12 @@ function config.help() {
     exit 1
 }
 
+badReturn="get"
+
 declare -A ConfigParams
 ConfigParams[$ChooseKey]=1
+ConfigParams[$badReturn]=1
+
 
 function config.checkBiuParams() {
     if [ "${ConfigParams[$1]}" ] ; then

@@ -25,3 +25,14 @@ function utils.readArrow(){
 UitlsCols=$(tput cols)
 # ready clear line
 UitlsEmptyLine=$(printf "%""$UitlsCols"s "")
+
+UitlsRetuen=".temp/badReturn"
+
+function utils.cache(){
+    if [ -d .temp ]; then
+        rm -rf .temp
+    fi
+
+    mkdir .temp
+    touch $UitlsRetuen
+}
