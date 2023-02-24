@@ -2,6 +2,8 @@
 
 source ./utils.sh
 
+ChooseKey="choose"
+
 # List of params(actual)
 mChooseList=()
 # List of params(show, split with screen width)

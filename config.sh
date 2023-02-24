@@ -3,12 +3,12 @@
 source ./choose.sh
 
 # show version info
-function config.version() {
+function Config.version() {
     echo "version 0.0.1"
 }
 
 # show help info
-function config.help() {
+function Config.help() {
     echo "Usage: biu.exe <command>"
     echo ""
     echo "A tool of Shell."
@@ -30,7 +30,7 @@ declare -A ConfigParams
 ConfigParams[$ChooseKey]=1
 
 
-function config.checkBiuParams() {
+function Config.checkBiuParams() {
     if [ "${ConfigParams[$1]}" ] ; then
         echo 0
     else
