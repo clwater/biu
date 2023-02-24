@@ -30,9 +30,9 @@ function showChoose(){
     for(( i=0;i<${#mChooseParams[@]};i++)) 
     do
         if [[ $mChooseIndex == $i ]]; then
-            echo  -e "\033[36m> ${mChooseParams[i]} \033[0m" 
+            echo  -e "\033[36m> ${mChooseParams[i]} \033[0m" > /dev/tty 
         else
-            echo  -e "\033[37m  ${mChooseParams[i]} \033[0m" 
+            echo  -e "\033[37m  ${mChooseParams[i]} \033[0m" > /dev/tty 
         fi
         ((index++))
     done;

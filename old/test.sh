@@ -76,4 +76,5 @@
 
 
 
-./biu.sh choose 1 2 3 
+a=$(./biu.sh choose 1 2 3)
+echo "a: $a" 
