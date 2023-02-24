@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "./utils.sh"
+source ./utils.sh
 
 # List of params(actual)
 mChooseList=()
@@ -13,7 +13,8 @@ mChooseMaxIndex=0
 
 # Choose
 
-
+# show choose list
+# todo item color
 function showChoose() {
     tput rc
     tput ed
@@ -27,6 +28,12 @@ function showChoose() {
     done
 }
 
+function returnChooseItem(){
+    tput rc
+    tput ed
+    Utils.writeTemp "${mChooseList[$mChooseIndex]}"
+}
+
 # check input to change choose index and return choose index
 function checkInput() {
     local indexChange=0
@@ -35,7 +42,7 @@ function checkInput() {
         # read key, check enter
         read -sn1 -p "" key
         if [[ $key = "" ]]; then
-            echo "[todo]key enter and return this"
+            returnChooseItem
             break
         fi
         # read key, check up, down
@@ -50,7 +57,6 @@ function checkInput() {
                     indexChange=1
                     ;;
                 B)
-
                     ((mChooseIndex++))
                     indexChange=1
                     ;;
@@ -76,25 +82,32 @@ function checkInput() {
     done
 }
 
-function setInputParams(){
-    local _cols=`expr $UitlsCols - 2`
-    # set params
-    while read lineText
-    do
-        # save the params
-        mChooseList[${#mChooseList[@]}]="$lineText"
-        # split string, make it can show out fo the terminal
-        local splitstr=${lineText: 0: $_cols}
-        mChooseParams[${#mChooseParams[@]}]="$splitstr"
-    done  < $1
+# add param to choose list
+# $1: param
+# Because the param may be contain space, 
+# when use $@ to get all params, it will be split by space 
+# so need add one by one 
+function Choose.setParma(){
+    mChooseList[${#mChooseList[@]}]=$1
+    local _cols=`expr $UtilsCols - 4`
+    local lineText=$1
+    local splitstr=${lineText: 0: $_cols}
+    mChooseShowList[${#mChooseShowList[@]}]=$splitstr
+    ((mChooseMaxIndex++))
 }
 
+
+# run choose
 function Choose.run() {
-    setInputParams
+    ((mChooseMaxIndex--))
+    # setInputParams
     # set tput info
     tput sc
     tput civis
+    # show choose list
     showChoose
+    # check input
     checkInput
+    # reset tput info
     tput cnorm
 }

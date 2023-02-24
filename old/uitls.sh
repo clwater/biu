@@ -22,9 +22,9 @@ function utils.readArrow(){
 }
 
 # get terminal size
-UitlsCols=$(tput cols)
+UtilsCols=$(tput cols)
 # ready clear line
-UitlsEmptyLine=$(printf "%""$UitlsCols"s "")
+UitlsEmptyLine=$(printf "%""$UtilsCols"s "")
 
 UitlsRetuen=".temp/badReturn"
 

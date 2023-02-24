@@ -53,7 +53,7 @@ function clearChoose(){
 
 # use choose.run to run choose function
 function choose.run(){
-    local _cols=`expr $UitlsCols - 2`
+    local _cols=`expr $UtilsCols - 2`
     # set params
     while read lineText
     do
