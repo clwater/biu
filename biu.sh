@@ -4,4 +4,6 @@ source ./choose.sh
 
 # coding in choose
 
-Choose.run
+Choose.run > /dev/tty 
+
+echo "123"
