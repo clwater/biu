@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./utils.sh
+source ./input.sh
 
 ChooseKey="choose"
 
@@ -14,11 +15,33 @@ mChooseIndex=0
 mChooseMaxIndex=0
 
 
-_DEFAULT_CHOOSE_Select="> "
+_DEFAULT_CHOOSE_CURSOR="> "
+# ○ ◉
+_DEFAULT_CHOOSE_CURSOR_PREFIX="AAAA"
+_DEFAULT_CHOOSE_SELECT_PREFIX="BBBB"
+_DEFAULT_CHOOSE_UNSELECT_PREFIX="CCCC"
 
-chooseParamsSelect="$_DEFAULT_CHOOSE_Select"
+
+# todo limit show height
+_DEFAULT_CHOOSE_SHOW_HEIGHT=10
+_DEFAULT_CHOOSE_LIMIT=2
+
+chooseParamsSelect="$_DEFAULT_CHOOSE_CURSOR"
 chooseParamsUnSelect=""
 chooseParamsCursorLen=0
+
+chooseParamsCursorPrefix="$_DEFAULT_CHOOSE_CURSOR_PREFIX"
+chooseParamsSelectPrefix="$_DEFAULT_CHOOSE_SELECT_PREFIX"
+chooseParamsUnSelectPrefix="$_DEFAULT_CHOOSE_UNSELECT_PREFIX"
+
+chooseParamsShowHeight=$_DEFAULT_CHOOSE_SHOW_HEIGHT
+chooseParamsLimit=$_DEFAULT_CHOOSE_LIMIT
+
+
+declare -A chooseUseSelect
+# chooseUseSelect
+# 0: use unSelect
+# 1: use select
 
 # Choose
 
@@ -27,13 +50,48 @@ chooseParamsCursorLen=0
 function showChoose() {
     tput rc
     tput ed
-    for ((i = 0; i < ${#mChooseShowList[@]}; i++)); do
-        if [[ $mChooseIndex == $i ]]; then
-            echo -e "\033[36m$chooseParamsSelect${mChooseShowList[i]}\033[0m"
+
+    local colorSTC="\033[0m"
+    local colorSTS="\033[36m"
+    local colorET="\033[0m"
+
+    local showInfo="$colorST$colorET"
+
+    for ((i = 0; i < ${#mChooseList[@]}; i++)); do
+
+        # echo "$i ${chooseUseSelect[$i]}"
+        # echo "${chooseUseSelect[$i]}"
+
+        if [ $chooseParamsLimit == 1 ] ; then
+            if [[ $mChooseIndex == $i ]]; then
+                echo -e "$colorSTS$chooseParamsSelect${mChooseList[i]}$colorET"
+            else
+                echo -e "$colorSTC$chooseParamsUnSelect${mChooseList[i]}$colorET"
+            fi
         else
-            echo -e "\033[37m$chooseParamsUnSelect${mChooseShowList[i]}\033[0m"
+            if [ "${chooseUseSelect[$i]}" ] ; then
+                if [[ $mChooseIndex == $i ]]; then
+                    echo -e "$colorSTS$chooseParamsSelect$chooseParamsSelectPrefix${mChooseList[i]}$colorET"
+                else
+                    echo -e "$colorSTS$chooseParamsUnSelect$chooseParamsSelectPrefix${mChooseList[i]}$colorET"
+                fi
+            else
+                if [[ $mChooseIndex == $i ]]; then
+                    echo -e "$colorSTS$chooseParamsSelect$chooseParamsCursorPrefix${mChooseList[i]}$colorET"
+                else
+                    echo -e "$colorSTS$chooseParamsUnSelect$chooseParamsUnSelectPrefix${mChooseList[i]}$colorET"
+                fi
+            fi
         fi
-        ((index++))
+
+
+
+        # if [[ $mChooseIndex == $i ]]; then
+        #     echo -e "\033[36m$chooseParamsSelect${mChooseShowList[i]}\033[0m"
+        # else
+        #     echo -e "\033[37m$chooseParamsUnSelect${mChooseShowList[i]}\033[0m"
+        # fi
+        # ((index++))
     done
 }
 
@@ -45,49 +103,76 @@ function returnChooseItem(){
 
 # check input to change choose index and return choose index
 function checkInput() {
-    local indexChange=0
     while true; do
+        key=$(Input.input)
+        # run command
+        case "$key" in
+            $Input_DOWN)
+                ((mChooseIndex++))
+                ;;
+            $Input_UP)
+                ((mChooseIndex--))
+                ;;
+            $Input_SPACE)
+                if [ chooseUseSelect[$mChooseIndex] == 0 ]; then
+                    chooseUseSelect[$mChooseIndex]=1
+                else
+                    chooseUseSelect[$mChooseIndex]=0
+                fi
+                ;;
+            $Input_ENTER)
+                returnChooseItem
+                break
+                ;;
+        esac
 
-        # read key, check enter
-        read -sn1 -p "" key
-        if [[ $key = "" ]]; then
-            returnChooseItem
-            break
-        fi
-        # read key, check up, down
-        # the up or down key is 3 char, so need read 3 char
-        if [[ $key == $'\e' ]]; then
-            read -sn1 -t 0.01 key
-            if [[ "$key" == "[" ]]; then
-                read -sn1 -t 0.01 key
-                case $key in
-                A)
-                    ((mChooseIndex--))
-                    indexChange=1
-                    ;;
-                B)
-                    ((mChooseIndex++))
-                    indexChange=1
-                    ;;
-                esac
-            fi
-        fi
+        # # # read key, check enter
+        # read -sn1 -p  "" key
+
+        # if [[ $key = '' ]] ; then
+        #     echo "space"
+        #     # if [ chooseUseSelect[$mChooseIndex] == 0 ]; then
+        #     #     chooseUseSelect[$mChooseIndex]=1
+        #     # else
+        #     #     chooseUseSelect[$mChooseIndex]=0
+        #     # fi
+        # fi
+        # if [[ $key = '\n' ]] ; then
+        #     echo "enter"
+        #     # returnChooseItem
+        #     # break
+        # fi
+
+
+
+        # # read key, check up, down
+        # # the up or down key is 3 char, so need read 3 char
+        # if [[ $key == $'\e' ]]; then
+        #     read -sn1 -t 0.01 key
+        #     if [[ "$key" == "[" ]]; then
+        #         read -sn1 -t 0.01 key
+        #         case $key in
+        #         A)
+        #             ((mChooseIndex--))
+        #             indexChange=1
+        #             ;;
+        #         B)
+        #             ((mChooseIndex++))
+        #             indexChange=1
+        #             ;;
+        #         esac
+        #     fi
+        # fi
         # check index, if index is out of range, set it to max or min
         if [[ $mChooseIndex -lt 0 ]]; then
-            mChooseIndex=0
-            indexChange=0
+            mChooseIndex=$mChooseMaxIndex
         fi
 
         if [[ $mChooseIndex -gt $mChooseMaxIndex ]]; then
-            mChooseIndex=$mChooseMaxIndex
-            indexChange=0
+            mChooseIndex=0
         fi
 
-        # only when index change, show choose list
-        if [[ $indexChange == 1 ]]; then
-            indexChange=0
-            showChoose
-        fi
+        showChoose
     done
 }
 
@@ -97,11 +182,13 @@ function checkInput() {
 # when use $@ to get all params, it will be split by space 
 # so need add one by one 
 function Choose.setParma(){
+    chooseUseSelect[${#mChooseList[@]}]=0
+
     mChooseList[${#mChooseList[@]}]=$1
-    local _cols=`expr $UtilsCols - 4`
-    local lineText=$1
-    local splitstr=${lineText: 0: $_cols}
-    mChooseShowList[${#mChooseShowList[@]}]=$splitstr
+    # local _cols=`expr $UtilsCols - $chooseParamsCursorLen`
+    # local lineText=$1
+    # local splitstr=${lineText: 0: $_cols}
+    # mChooseShowList[${#mChooseShowList[@]}]=$splitstr
     ((mChooseMaxIndex++))
 }
 
