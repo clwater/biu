@@ -2,10 +2,15 @@
 
 source ./choose.sh
 
+
+
+
 # show version info
 function Config.version() {
     echo "version 0.0.1"
 }
+
+
 
 # show help info
 function Config.help() {
@@ -24,6 +29,16 @@ function Config.help() {
     exit 1
 }
 
+
+function Config.helpTypeError() {
+    echo "biu: '$1' is not a biu command. See 'biu --help'."
+    echo ""
+    Config.help
+}
+
+
+
+
 badReturn="get"
 
 declare -A ConfigParams
@@ -36,4 +51,28 @@ function Config.checkBiuParams() {
     else
         echo 1
     fi
+}
+
+
+# return 1: bergin with - or --, need check again
+# return 2: not begin with - or --, but is usefull params(in ConfigParams)
+function Config.checkFirstParams() {
+    
+    if [ "$1" == "" ]; then
+        Config.help
+    fi
+
+    if [[ $1 == -* ]]; then
+        return 1
+    fi
+
+    # check params can be used 
+    local checkBiuParams=$(Config.checkBiuParams $1)
+    if [[ $checkBiuParams == 0 ]]; then
+        return 2
+    else
+        Config.helpTypeError
+    fi
+
+
 }
