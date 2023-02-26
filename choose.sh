@@ -114,11 +114,17 @@ function checkInput() {
                 ((mChooseIndex--))
                 ;;
             $Input_SPACE)
-                if [ chooseUseSelect[$mChooseIndex] == 0 ]; then
+                echo "gzb: $mChooseIndex  ${chooseUseSelect[$mChooseIndex]} "
+                if [ $chooseUseSelect[$mChooseIndex] == "0" ] ; then
                     chooseUseSelect[$mChooseIndex]=1
                 else
                     chooseUseSelect[$mChooseIndex]=0
                 fi
+                for key in $(echo ${!chooseUseSelect[*]})
+                    do
+                            echo "$key : ${chooseUseSelect[$key]}"
+                    done
+                sleep 3
                 ;;
             $Input_ENTER)
                 returnChooseItem
@@ -126,44 +132,6 @@ function checkInput() {
                 ;;
         esac
 
-        # # # read key, check enter
-        # read -sn1 -p  "" key
-
-        # if [[ $key = '' ]] ; then
-        #     echo "space"
-        #     # if [ chooseUseSelect[$mChooseIndex] == 0 ]; then
-        #     #     chooseUseSelect[$mChooseIndex]=1
-        #     # else
-        #     #     chooseUseSelect[$mChooseIndex]=0
-        #     # fi
-        # fi
-        # if [[ $key = '\n' ]] ; then
-        #     echo "enter"
-        #     # returnChooseItem
-        #     # break
-        # fi
-
-
-
-        # # read key, check up, down
-        # # the up or down key is 3 char, so need read 3 char
-        # if [[ $key == $'\e' ]]; then
-        #     read -sn1 -t 0.01 key
-        #     if [[ "$key" == "[" ]]; then
-        #         read -sn1 -t 0.01 key
-        #         case $key in
-        #         A)
-        #             ((mChooseIndex--))
-        #             indexChange=1
-        #             ;;
-        #         B)
-        #             ((mChooseIndex++))
-        #             indexChange=1
-        #             ;;
-        #         esac
-        #     fi
-        # fi
-        # check index, if index is out of range, set it to max or min
         if [[ $mChooseIndex -lt 0 ]]; then
             mChooseIndex=$mChooseMaxIndex
         fi
