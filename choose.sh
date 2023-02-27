@@ -17,20 +17,18 @@ mChooseMaxIndex=0
 
 _DEFAULT_CHOOSE_CURSOR="> "
 # ○ ◉
-_DEFAULT_CHOOSE_CURSOR_PREFIX="AAAA"
-_DEFAULT_CHOOSE_SELECT_PREFIX="BBBB"
-_DEFAULT_CHOOSE_UNSELECT_PREFIX="CCCC"
+_DEFAULT_CHOOSE_SELECT_PREFIX="◉ "
+_DEFAULT_CHOOSE_UNSELECT_PREFIX="○ "
 
 
 # todo limit show height
 _DEFAULT_CHOOSE_SHOW_HEIGHT=10
-_DEFAULT_CHOOSE_LIMIT=2
+_DEFAULT_CHOOSE_LIMIT=1
 
 chooseParamsSelect="$_DEFAULT_CHOOSE_CURSOR"
 chooseParamsUnSelect=""
 chooseParamsCursorLen=0
 
-chooseParamsCursorPrefix="$_DEFAULT_CHOOSE_CURSOR_PREFIX"
 chooseParamsSelectPrefix="$_DEFAULT_CHOOSE_SELECT_PREFIX"
 chooseParamsUnSelectPrefix="$_DEFAULT_CHOOSE_UNSELECT_PREFIX"
 
@@ -45,6 +43,7 @@ declare -A chooseUseSelect
 
 # Choose
 
+
 # show choose list
 # todo item color
 function showChoose() {
@@ -53,46 +52,40 @@ function showChoose() {
 
     local colorSTC="\033[0m"
     local colorSTS="\033[36m"
-    local colorET="\033[0m"
+    local colorReset="\033[0m"
 
-    local showInfo="$colorST$colorET"
 
     for ((i = 0; i < ${#mChooseList[@]}; i++)); do
 
-        # echo "$i ${chooseUseSelect[$i]}"
-        # echo "${chooseUseSelect[$i]}"
+        # echo item is [un]current + [[un]select] + item 
 
-        if [ $chooseParamsLimit == 1 ] ; then
-            if [[ $mChooseIndex == $i ]]; then
-                echo -e "$colorSTS$chooseParamsSelect${mChooseList[i]}$colorET"
-            else
-                echo -e "$colorSTC$chooseParamsUnSelect${mChooseList[i]}$colorET"
-            fi
+        local item="${mChooseList[i]}"
+
+        if [[ $mChooseIndex == $i || ${chooseUseSelect[$i]} == 1 ]]; then
+            item="$colorSTS"
         else
-            if [ "${chooseUseSelect[$i]}" ] ; then
-                if [[ $mChooseIndex == $i ]]; then
-                    echo -e "$colorSTS$chooseParamsSelect$chooseParamsSelectPrefix${mChooseList[i]}$colorET"
-                else
-                    echo -e "$colorSTS$chooseParamsUnSelect$chooseParamsSelectPrefix${mChooseList[i]}$colorET"
-                fi
+            item="$colorSTC"
+        fi
+
+        if [ $mChooseIndex == $i ]; then
+            item="$item$chooseParamsSelect"
+        else
+            item="$item$chooseParamsUnSelect"
+        fi
+
+        if [ $chooseParamsLimit != 1 ]; then
+            if [ ${chooseUseSelect[$i]} == 1 ]; then
+                item="$item$chooseParamsSelectPrefix"
             else
-                if [[ $mChooseIndex == $i ]]; then
-                    echo -e "$colorSTS$chooseParamsSelect$chooseParamsCursorPrefix${mChooseList[i]}$colorET"
-                else
-                    echo -e "$colorSTS$chooseParamsUnSelect$chooseParamsUnSelectPrefix${mChooseList[i]}$colorET"
-                fi
+                item="$item$chooseParamsUnSelectPrefix"
             fi
         fi
 
+        item="$item${mChooseList[i]}$colorReset"
 
-
-        # if [[ $mChooseIndex == $i ]]; then
-        #     echo -e "\033[36m$chooseParamsSelect${mChooseShowList[i]}\033[0m"
-        # else
-        #     echo -e "\033[37m$chooseParamsUnSelect${mChooseShowList[i]}\033[0m"
-        # fi
-        # ((index++))
+        echo -e "$item"
     done
+    
 }
 
 function returnChooseItem(){
@@ -114,17 +107,11 @@ function checkInput() {
                 ((mChooseIndex--))
                 ;;
             $Input_SPACE)
-                echo "gzb: $mChooseIndex  ${chooseUseSelect[$mChooseIndex]} "
-                if [ $chooseUseSelect[$mChooseIndex] == "0" ] ; then
+                if [ ${chooseUseSelect[$mChooseIndex]} == 0 ] ; then
                     chooseUseSelect[$mChooseIndex]=1
                 else
                     chooseUseSelect[$mChooseIndex]=0
                 fi
-                for key in $(echo ${!chooseUseSelect[*]})
-                    do
-                            echo "$key : ${chooseUseSelect[$key]}"
-                    done
-                sleep 3
                 ;;
             $Input_ENTER)
                 returnChooseItem
@@ -224,7 +211,7 @@ function Choose.checkPmarm(){
     # -l: long options
     # --: other to show help.
 
-    ARGS=$(getopt -q -a -o vh -l version,help,cursor: -- "$@")
+    ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select_prefix:,un_select_prefix: -- "$@")
     # [ $? -ne 0 ] && Config.help && exit 1
     eval set -- "${ARGS}"
     while true; do
@@ -241,6 +228,27 @@ function Choose.checkPmarm(){
             chooseParamsSelect=$2
             if [[ $chooseParamsSelect == "" ]]; then
                 Choose.helpParams "--cursor"
+            fi
+            shift
+            ;;
+        --limit)
+            chooseParamsLimit=$2
+            if [[ $chooseParamsLimit == "" ]]; then
+                Choose.helpParams "--limit"
+            fi
+            shift
+            ;;
+        --select_prefix)
+            chooseParamsSelectPrefix=$2
+            if [[ $chooseParamsSelectPrefix == "" ]]; then
+                Choose.helpParams "--select_prefix"
+            fi
+            shift
+            ;;
+        --un_select_prefix)
+            chooseParamsUnSelectPrefix=$2
+            if [[ $chooseParamsUnSelectPrefix == "" ]]; then
+                Choose.helpParams "--un_select_prefix"
             fi
             shift
             ;;
