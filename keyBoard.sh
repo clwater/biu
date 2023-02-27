@@ -1,10 +1,10 @@
 #!/bin/bash
 
 
-Input_UP="Input_UP"
-Input_DOWN="Input_DOWN"
-Input_SPACE="Input_SPACE"
-Input_ENTER="Input_ENTER"
+KeyBoard_UP="KeyBoard_UP"
+KeyBoard_DOWN="KeyBoard_DOWN"
+KeyBoard_SPACE="KeyBoard_SPACE"
+KeyBoard_ENTER="KeyBoard_ENTER"
 
 function Input.input(){
 
@@ -49,10 +49,10 @@ function Input.input(){
     echo Page_Down
    ;;
    $'\x1b\x5b\x41')  # 上箭头
-    echo $Input_UP
+    echo $KeyBoard_UP
    ;;
    $'\x1b\x5b\x42')  # 下箭头
-    echo $Input_DOWN
+    echo $KeyBoard_DOWN
    ;;
    $'\x1b\x5b\x43')  # 右箭头
     echo Right arrow
@@ -64,13 +64,13 @@ function Input.input(){
     echo Tab Key
    ;;
    $'\x0a')  # 回车
-    echo $Input_ENTER
+    echo $KeyBoard_ENTER
    ;;
    $'\x1b')  # ESC
     echo Escape Key
    ;;
    $'\x20')  # 空格
-    echo $Input_SPACE
+    echo $KeyBoard_SPACE
    ;;
   esac
 

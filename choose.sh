@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ./utils.sh
-source ./input.sh
+source ./keyBoard.sh
 
 ChooseKey="choose"
 
@@ -151,18 +151,18 @@ function checkInput() {
         key=$(Input.input)
         # run command
         case "$key" in
-            $Input_DOWN)
+            $KeyBoard_DOWN)
                 ((mChooseIndex++))
                 ;;
-            $Input_UP)
+            $KeyBoard_UP)
                 ((mChooseIndex--))
                 ;;
-            $Input_SPACE)
+            $KeyBoard_SPACE)
                 # check limit not only 1 
                 if [ $chooseParamsLimit != 1 ]; then
                     if [ ${chooseUseSelect[$mChooseIndex]} == 0 ] ; then
                         if [ $chooseItemCount -ge $chooseParamsLimit ]; then
-                            if [ $chooseParamsErrorInfo == $ConfigOn ]; then
+                            if [[ $chooseParamsErrorInfo == $ConfigOn ]]; then
                                 showError 1
                             fi
                         else
@@ -178,7 +178,7 @@ function checkInput() {
                     fi
                 fi
                 ;;
-            $Input_ENTER)
+            $KeyBoard_ENTER)
                 if [[ $chooseParamsLimit == 1 || $chooseParamsStrict == $ConfigOff ]]; then
                     returnChooseItem
                     break
