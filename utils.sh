@@ -7,7 +7,7 @@ UtilsCols=0
 mTempFile=".temp"
 
 function Utils.writeTemp(){
-    echo $1 > $mTempFile
+    echo $1 >> $mTempFile
 }
 
 function Utils.readTemp(){
