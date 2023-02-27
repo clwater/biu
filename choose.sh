@@ -148,7 +148,7 @@ function returnChooseItem(){
 # check input to change choose index and return choose index
 function checkInput() {
     while true; do
-        key=$(Input.input)
+        key=$(KeyBoard.input)
         # run command
         case "$key" in
             $KeyBoard_DOWN)

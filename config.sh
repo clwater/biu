@@ -1,6 +1,7 @@
 #! /bin/bash
 
 source ./choose.sh
+source ./input.sh
 
 
 ConfigOn="on"
@@ -44,6 +45,7 @@ badReturn="get"
 
 declare -A ConfigParams
 ConfigParams[$ChooseKey]=1
+ConfigParams[$InputKey]=1
 
 
 function Config.checkBiuParams() {

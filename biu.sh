@@ -45,9 +45,13 @@ fi
 
 if [[ $mCheckFirstParams == 2 ]]; then
     case "$1" in
-        choose)
+        $ChooseKey)
             Choose.checkPmarm $@
             ;;
+        $InputKey)
+            Input.checkPmarm $@
+            ;;
+    
     esac
 fi
 
@@ -91,11 +95,17 @@ function Biu.Choose(){
     echo $(Utils.readTemp)
 }
 
+function Biu.Input(){
+    Input.run > /dev/tty
+}
 
 
 # # run command
 case "$optFirst" in
-    choose)
+    $ChooseKey)
         Biu.Choose
+        ;;
+    $InputKey)
+        Biu.Input
         ;;
 esac
