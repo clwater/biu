@@ -308,13 +308,13 @@ function Choose.run() {
     # setInputParams
     # set tput info
     tput sc
-    tput civis
+    Utils.hideCursor
     # show choose list
     showChoose
     # check input
     checkInput
     # reset tput info
-    tput cnorm
+    Utils.showCursor
 }
 
 function Choose.helpParams(){
