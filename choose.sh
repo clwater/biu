@@ -24,7 +24,7 @@ _DEFAULT_CHOOSE_INDICATOR="•"
 
 
 # todo limit show height
-_DEFAULT_CHOOSE_SHOW_HEIGHT=100
+_DEFAULT_CHOOSE_SHOW_HEIGHT=10
 _DEFAULT_CHOOSE_LIMIT=1
 _DEFAULT_CHOOSE_STRICT=$ConfigOff
 _DEFAULT_CHOOSE_ERROR_INFO=$ConfigOn
@@ -206,6 +206,18 @@ function checkInput() {
             $KeyBoard_UP)
                 ((mChooseIndex--))
                 ;;
+            $KeyBoard_LEFT)
+                ((mChooseIndex-=$chooseParamsHeight))
+                if [ $mChooseIndex -lt 0 ]; then
+                    mChooseIndex=0
+                fi
+                ;;
+            $KeyBoard_RIGHT)
+                ((mChooseIndex+=$chooseParamsHeight))
+                if [ $mChooseIndex -gt $mChooseMaxIndex ]; then
+                    mChooseIndex=$mChooseMaxIndex
+                fi
+                ;;
             $KeyBoard_SPACE)
                 # check limit not only 1 
                 if [ $chooseParamsLimit != 1 ]; then
@@ -330,7 +342,7 @@ function Choose.help(){
     echo "    -v, --version   Show version information"
     echo "   --cursor        Set cursor, default is >"
     echo "   --limit         Set limit, default is 1"
-    echo "   --height        Set height, default is 100"
+    echo "   --height        Set height, default is 10"
     echo "   --indicator     Set indicator, default is •"
     echo "   --select-prefix Set select prefix, default is ◉ "
     echo "   --un-select-prefix Set un-select prefix, default is ○ "
