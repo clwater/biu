@@ -2,7 +2,7 @@
 
 # Choose
 
-choose=$(./biu.sh choose a "b c" "d \"e" f g h i jk l l2 mn --height=3 --limit=2 --select-prefix="<<<<<" --un-select-prefix="!!")
+choose=$(./biu.sh choose a "b c" "d \"e" f g h i jk l l2 mn --height=3 --limit=2)
 echo $choose
 
 # declare -A test

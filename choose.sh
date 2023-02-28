@@ -20,10 +20,11 @@ _DEFAULT_CHOOSE_CURSOR="> "
 # ○ ◉
 _DEFAULT_CHOOSE_SELECT_PREFIX="◉ "
 _DEFAULT_CHOOSE_UNSELECT_PREFIX="○ "
+_DEFAULT_CHOOSE_INDICATOR="•"
 
 
 # todo limit show height
-_DEFAULT_CHOOSE_SHOW_HEIGHT=10
+_DEFAULT_CHOOSE_SHOW_HEIGHT=100
 _DEFAULT_CHOOSE_LIMIT=1
 _DEFAULT_CHOOSE_STRICT=$ConfigOff
 _DEFAULT_CHOOSE_ERROR_INFO=$ConfigOn
@@ -41,6 +42,8 @@ chooseParamsLimit=$_DEFAULT_CHOOSE_LIMIT
 
 chooseParamsStrict=$_DEFAULT_CHOOSE_STRICT
 chooseParamsErrorInfo=$_DEFAULT_CHOOSE_ERROR_INFO
+
+chooseParamsIndicator=$_DEFAULT_CHOOSE_INDICATOR
 
 mChooseHeightNeedSplit=0
 mChooseSplitWidth=0
@@ -81,13 +84,16 @@ mShowIndex=0
 function showSplitIndex(){
     local _currentIndex=$(($1/chooseParamsHeight))
     mShowIndex=$_currentIndex
+    echo ""
+    echo -n "  "
     for ((i = 0; i < $mChooseSplitWidth; i++)); do
         if [[ $i == $_currentIndex ]]; then
-            echo -n "+"
+            echo -n -e "\e[2m$chooseParamsIndicator\033[0m"
         else
-            echo -n "="
+            echo -n "$chooseParamsIndicator"
         fi
     done
+    echo ""
 }
 
 # show choose list
@@ -324,6 +330,8 @@ function Choose.help(){
     echo "    -v, --version   Show version information"
     echo "   --cursor        Set cursor, default is >"
     echo "   --limit         Set limit, default is 1"
+    echo "   --height        Set height, default is 100"
+    echo "   --indicator     Set indicator, default is •"
     echo "   --select-prefix Set select prefix, default is ◉ "
     echo "   --un-select-prefix Set un-select prefix, default is ○ "
     echo "   --strict        Set strict, default is on"
@@ -354,7 +362,7 @@ function Choose.checkPmarm(){
     # -l: long options
     # --: other to show help.
 
-    ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select-prefix:,un-select-prefix:,strict:,error-info:,height: -- "$@")
+    ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select-prefix:,un-select-prefix:,strict:,error-info:,height:,indicator: -- "$@")
     [ $? -ne 0 ] && Config.help && exit 1
     eval set -- "${ARGS}"
     while true; do
@@ -366,6 +374,13 @@ function Choose.checkPmarm(){
         -v | --version)
             Config.version
             exit 1
+            ;;
+        --indicator)
+            chooseParamsIndicator=$2
+            if [[ $chooseParamsIndicator == "" ]]; then
+                Choose.helpParams "--indicator"
+            fi
+            shift
             ;;
         --height)
             chooseParamsHeight=$2
