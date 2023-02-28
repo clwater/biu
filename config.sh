@@ -3,8 +3,7 @@
 source ./choose.sh
 
 
-ConfigOn="on"
-ConfigOff="off"
+
 
 # show version info
 function Config.version() {
