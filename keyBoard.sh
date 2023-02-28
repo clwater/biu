@@ -7,7 +7,7 @@ KeyBoard_RIGHT="KeyBoard_RIGHT"
 KeyBoard_SPACE="KeyBoard_SPACE"
 KeyBoard_ENTER="KeyBoard_ENTER"
 
-function Input.input(){
+function KeyBoard.input() {
 
     unset K1 K2 K3
     read -s -N1 -p ""
