@@ -4,8 +4,7 @@ source ./choose.sh
 source ./input.sh
 
 
-ConfigOn="on"
-ConfigOff="off"
+
 
 # show version info
 function Config.version() {

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./utils.sh
+source ./field.sh
 source ./keyBoard.sh
 
 ChooseKey="choose"
@@ -19,6 +20,7 @@ _DEFAULT_CHOOSE_CURSOR="> "
 # ○ ◉
 _DEFAULT_CHOOSE_SELECT_PREFIX="◉ "
 _DEFAULT_CHOOSE_UNSELECT_PREFIX="○ "
+_DEFAULT_CHOOSE_INDICATOR="•"
 
 
 # todo limit show height
@@ -34,13 +36,17 @@ chooseParamsCursorLen=0
 chooseParamsSelectPrefix="$_DEFAULT_CHOOSE_SELECT_PREFIX"
 chooseParamsUnSelectPrefix="$_DEFAULT_CHOOSE_UNSELECT_PREFIX"
 
-chooseParamsShowHeight=$_DEFAULT_CHOOSE_SHOW_HEIGHT
+chooseParamsHeight=$_DEFAULT_CHOOSE_SHOW_HEIGHT
 chooseParamsLimit=$_DEFAULT_CHOOSE_LIMIT
 
 
 chooseParamsStrict=$_DEFAULT_CHOOSE_STRICT
 chooseParamsErrorInfo=$_DEFAULT_CHOOSE_ERROR_INFO
 
+chooseParamsIndicator=$_DEFAULT_CHOOSE_INDICATOR
+
+mChooseHeightNeedSplit=0
+mChooseSplitWidth=0
 chooseItemCount=0
 
 declare -A chooseUseSelect
@@ -72,6 +78,24 @@ function showErrorInLoop() {
 }
 
 
+
+mShowIndex=0
+
+function showSplitIndex(){
+    local _currentIndex=$(($1/chooseParamsHeight))
+    mShowIndex=$_currentIndex
+    echo ""
+    echo -n "  "
+    for ((i = 0; i < $mChooseSplitWidth; i++)); do
+        if [[ $i == $_currentIndex ]]; then
+            echo -n "$chooseParamsIndicator"
+        else
+            echo -n -e "\e[2m$chooseParamsIndicator\033[0m"
+        fi
+    done
+    echo ""
+}
+
 # show choose list
 # todo item color
 function showChoose() {
@@ -82,19 +106,39 @@ function showChoose() {
     local colorSTS="\033[36m"
     local colorReset="\033[0m"
 
+    # init show choose start and end 
+    local start=0
+    local end=${#mChooseList[@]}
 
-    for ((i = 0; i < ${#mChooseList[@]}; i++)); do
+    # check if need current index
+    # only show the current index is matter
+    if [ $mChooseHeightNeedSplit == 1 ]; then
+        local _currentIndex=$((mChooseIndex / chooseParamsHeight))
+        # todo fix mac not need \* instead of *
+        start=$(($_currentIndex * $chooseParamsHeight))
+        end=$(($start + $chooseParamsHeight))
+    fi
 
+
+    for ((i = $start; i <$end ; i++)); do
         # echo item is [un]current + [[un]select] + item 
 
         local item="${mChooseList[i]}"
 
+        # add empty item for format ui 
+        if [[ $item == "" ]]; then
+            echo ""
+            continue
+        fi
+
+        # if choose the item, or select the item, show the item with color
         if [[ $mChooseIndex == $i || ${chooseUseSelect[$i]} == 1 ]]; then
             item="$colorSTS"
         else
             item="$colorSTC"
         fi
 
+        # check if is select 
         if [ $mChooseIndex == $i ]; then
             item="$item$chooseParamsSelect"
         else
@@ -102,7 +146,7 @@ function showChoose() {
         fi
 
         if [ $chooseParamsLimit != 1 ]; then
-            if [ ${chooseUseSelect[$i]} == 1 ]; then
+            if [[ ${chooseUseSelect[$i]} == 1 ]]; then
                 item="$item$chooseParamsSelectPrefix"
             else
                 item="$item$chooseParamsUnSelectPrefix"
@@ -110,9 +154,16 @@ function showChoose() {
         fi
 
         item="$item${mChooseList[i]}$colorReset"
+        # split item with screen width
+        item=${item:0:$UtilsCols}
 
         echo -e "$item"
     done
+
+    # check if need current index
+    if [ $mChooseHeightNeedSplit == 1 ]; then
+        showSplitIndex $mChooseIndex
+    fi
 
     showErrorInLoop
     
@@ -157,6 +208,18 @@ function checkInput() {
             $KeyBoard_UP)
                 ((mChooseIndex--))
                 ;;
+            $KeyBoard_LEFT)
+                ((mChooseIndex-=$chooseParamsHeight))
+                if [ $mChooseIndex -lt 0 ]; then
+                    mChooseIndex=0
+                fi
+                ;;
+            $KeyBoard_RIGHT)
+                ((mChooseIndex+=$chooseParamsHeight))
+                if [ $mChooseIndex -gt $mChooseMaxIndex ]; then
+                    mChooseIndex=$mChooseMaxIndex
+                fi
+                ;;
             $KeyBoard_SPACE)
                 # check limit not only 1 
                 if [ $chooseParamsLimit != 1 ]; then
@@ -184,7 +247,7 @@ function checkInput() {
                     break
                 else
                     if [ $chooseItemCount -lt $chooseParamsLimit ]; then
-                        if [ $chooseParamsErrorInfo == $ConfigOn ]; then
+                        if [[ $chooseParamsErrorInfo == $ConfigOn ]]; then
                             showError 2
                         fi
                     else 
@@ -227,6 +290,15 @@ function Choose.init(){
     ((mChooseMaxIndex--))
     chooseParamsCursorLen=${#chooseParamsSelect}
     chooseParamsUnSelect=`printf "%-${chooseParamsCursorLen}s" ""`
+    if [ ${#mChooseList[@]} -gt $chooseParamsHeight ]; then
+        mChooseHeightNeedSplit=1
+        mChooseSplitWidth=$((${#mChooseList[@]} % chooseParamsHeight))
+        if [ $mChooseSplitWidth == 0 ]; then
+            mChooseSplitWidth=$((${#mChooseList[@]} / $chooseParamsHeight))
+        else
+            mChooseSplitWidth=$((${#mChooseList[@]} / $chooseParamsHeight + 1))
+        fi
+    fi
 }
 
 
@@ -272,6 +344,8 @@ function Choose.help(){
     echo "    -v, --version   Show version information"
     echo "   --cursor        Set cursor, default is >"
     echo "   --limit         Set limit, default is 1"
+    echo "   --height        Set height, default is 10"
+    echo "   --indicator     Set indicator, default is •"
     echo "   --select-prefix Set select prefix, default is ◉ "
     echo "   --un-select-prefix Set un-select prefix, default is ○ "
     echo "   --strict        Set strict, default is on"
@@ -302,7 +376,7 @@ function Choose.checkPmarm(){
     # -l: long options
     # --: other to show help.
 
-    ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select-prefix:,un-select-prefix:,strict:,error-info: -- "$@")
+    ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select-prefix:,un-select-prefix:,strict:,error-info:,height:,indicator: -- "$@")
     [ $? -ne 0 ] && Config.help && exit 1
     eval set -- "${ARGS}"
     while true; do
@@ -314,6 +388,20 @@ function Choose.checkPmarm(){
         -v | --version)
             Config.version
             exit 1
+            ;;
+        --indicator)
+            chooseParamsIndicator=$2
+            if [[ $chooseParamsIndicator == "" ]]; then
+                Choose.helpParams "--indicator"
+            fi
+            shift
+            ;;
+        --height)
+            chooseParamsHeight=$2
+            if [[ $chooseParamsHeight == "" ]]; then
+                Choose.helpParams "--height"
+            fi
+            shift
             ;;
         --cursor)
             chooseParamsSelect=$2

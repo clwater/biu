@@ -21,6 +21,7 @@ function Utils.init(){
     
         mIsInit=1
         # get terminal cols
+        # todo some time, `tput cols` will get an error value
         UtilsCols=`tput cols`
 
         if [ ! -f $mTempFile ]; then
