@@ -88,7 +88,7 @@ function Biu.Choose(){
         fi
     done
     Choose.run > /dev/tty 
-    echo $(Utils.readTemp)
+    Utils.readTemp
 }
 
 

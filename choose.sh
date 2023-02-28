@@ -88,9 +88,9 @@ function showSplitIndex(){
     echo -n "  "
     for ((i = 0; i < $mChooseSplitWidth; i++)); do
         if [[ $i == $_currentIndex ]]; then
-            echo -n -e "\e[2m$chooseParamsIndicator\033[0m"
-        else
             echo -n "$chooseParamsIndicator"
+        else
+            echo -n -e "\e[2m$chooseParamsIndicator\033[0m"
         fi
     done
     echo ""
