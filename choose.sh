@@ -154,6 +154,8 @@ function showChoose() {
         fi
 
         item="$item${mChooseList[i]}$colorReset"
+        # split item with screen width
+        item=${item:0:$UtilsCols}
 
         echo -e "$item"
     done
