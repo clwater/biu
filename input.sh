@@ -1,8 +1,12 @@
 #!/bin/bash
 
-source ./keyBoard.sh
+InputFirst=0
 
-InputKey="input"
+if [[ $InputFirst == 0 ]]; then
+    source ./keyBoard.sh
+    InputFirst=1
+fi
+
 
 function showHeader() {
     echo -e "\e[2mHeader\033[0m"

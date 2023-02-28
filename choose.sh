@@ -1,10 +1,14 @@
 #!/bin/bash
 
-source ./utils.sh
-source ./field.sh
-source ./keyBoard.sh
+ChooseFirst=0
+if [[ $ChooseFirst == 0 ]]; then
+    source ./utils.sh
+    source ./keyBoard.sh
+    source ./style.sh
+    ChooseFirst=1
+fi
 
-ChooseKey="choose"
+
 
 # List of params(actual)
 mChooseList=()
@@ -101,9 +105,8 @@ function showSplitIndex(){
 function showChoose() {
     tput rc
     tput ed
-
     local colorSTC="\033[0m"
-    local colorSTS="\033[36m"
+    local colorSTS="\033[$(Color.getForeground)m"
     local colorReset="\033[0m"
 
     # init show choose start and end 
@@ -377,7 +380,7 @@ function Choose.checkPmarm(){
     # --: other to show help.
 
     ARGS=$(getopt -q -a -o vh -l version,help,cursor:,limit:,select-prefix:,un-select-prefix:,strict:,error-info:,height:,indicator: -- "$@")
-    [ $? -ne 0 ] && Config.help && exit 1
+    [ $? -ne 0 ] && Choose.help && exit 1
     eval set -- "${ARGS}"
     while true; do
         case "$1" in

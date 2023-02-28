@@ -2,6 +2,7 @@
 
 source ./choose.sh
 source ./config.sh
+source ./style.sh
 
 
 # # get Biu type
@@ -51,6 +52,9 @@ if [[ $mCheckFirstParams == 2 ]]; then
         $InputKey)
             Input.checkPmarm $@
             ;;
+        $StyleKey)
+            Style.checkPmarm $@
+            ;;
     
     esac
 fi
@@ -95,17 +99,26 @@ function Biu.Choose(){
     Utils.readTemp
 }
 
+# run Biu.Input
 function Biu.Input(){
     Input.run > /dev/tty
 }
 
 
-# # run command
+# run Biu.Style
+function Biu.Style(){
+    Style.run
+}
+
+# run command
 case "$optFirst" in
     $ChooseKey)
         Biu.Choose
         ;;
     $InputKey)
         Biu.Input
+        ;;
+    $StyleKey)
+        Biu.Style
         ;;
 esac

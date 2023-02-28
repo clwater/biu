@@ -1,7 +1,17 @@
 #! /bin/bash
 
-source ./choose.sh
-source ./input.sh
+ChooseKey="choose"
+InputKey="input"
+StyleKey="style"
+
+ConfigFirst=0
+if [[ $ConfigFirst == 0 ]]; then
+    source ./input.sh
+    ConfigFirst=1
+fi
+
+
+
 
 
 
@@ -45,6 +55,7 @@ badReturn="get"
 declare -A ConfigParams
 ConfigParams[$ChooseKey]=1
 ConfigParams[$InputKey]=1
+ConfigParams[$StyleKey]=1
 
 
 function Config.checkBiuParams() {
