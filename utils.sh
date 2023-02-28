@@ -14,10 +14,18 @@ function Utils.readTemp(){
     cat $mTempFile
 }
 
+function Utils.hideCursor(){
+    echo -e "\033[?25l"
+}
+
+function Utils.showCursor(){
+    echo -e "\033[?25h"
+}
+
 
 function Utils.init(){
     if [ $mIsInit == 0 ]; then
-        trap "rm $mTempFile; tput cnorm" EXIT
+        trap "rm $mTempFile; Utils.showCursor " EXIT
     
         mIsInit=1
         # get terminal cols
