@@ -12,7 +12,7 @@ _CONFIRM_DEFAULT_AFFIRMATIVE_TEXT="Yes"
 _CONFIRM_DEFAULT_MESSAGE="Are you sure?"
 _CONFIRM_DEFAULT_CHOICE=1
 
-_DEFAULT_CHOOSE_WIDTH=50
+_DEFAULT_CHOOSE_WIDTH=30
 
 mConfirmNegativeText=$_CONFIRM_DEFAULT_NEGATIVE_TEXT
 mConfirmAffirmativeText=$_CONFIRM_DEFAULT_AFFIRMATIVE_TEXT
@@ -26,10 +26,39 @@ mConfirmWidth=$_DEFAULT_CHOOSE_WIDTH
 
 
 function show() {
-    local backColor="\033[$(Color.getBackground)m"
-    local foreColor=$(Color.getFormatColor)
+    local colorReverse=$(Color.getBackgroundReverse)
     local colorReset="\033[0m"
+    local emptyLine=$(printf "%${mConfirmWidth}s" "")
+    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+
+    tput sc
+    # get mConfirmMessage length
+    local messageLen=${#mConfirmMessage}
+    local negativeLen=${#mConfirmNegativeText}
+    local affirmativeLen=${#mConfirmAffirmativeText}
     
+    tput cuu 4          
+    # move to center
+    tput cuf $((mConfirmWidth/2 - messageLen/2)) 
+    echo "$mConfirmMessage"
+
+    tput rc
+
+    tput cuu 2
+    tput sc
+
+    tput cuf $((mConfirmWidth/4 - negativeLen/2))
+    echo -n "$mConfirmNegativeText"
+
+    # move to line start
+    tput  rc
+    tput cuf $((mConfirmWidth/2 + affirmativeLen/2))
+    
+    echo "$mConfirmAffirmativeText"
 
 }
 

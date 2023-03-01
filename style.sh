@@ -62,12 +62,6 @@ function setForeground() {
     saveConfig BiuColorForeground $1
 }
 
-# echo -e "\033[0;0m 默认 \033[0m" 
-function Color.getFormatColor(){
-    local backColor=$(Color.getBackground)
-    local foreColor=$(Color.getForeground)
-    echo  "\033[${backColor};${foreColor}m"
-}
 
 function Color.getBackground() {
     local backColor=${Colors[$BiuColorBackground]}
@@ -78,6 +72,33 @@ function Color.getBackground() {
 function Color.getForeground() {
     echo "${Colors[$BiuColorForeground]}"
 }
+
+
+function Color.getBackgroundReverse(){
+    local backColor=30
+    # local backColor=$(Color.getBackground)
+    local foreColor=$(Color.getForeground)
+    # backColor=$((backColor - 10))
+    foreColor=$((foreColor + 10))
+    echo  "\033[${foreColor};${backColor}m"
+}
+
+
+function Color.getFormatColorReverse(){
+    local backColor=$(Color.getBackground)
+    local foreColor=$(Color.getForeground)
+    backColor=$((backColor - 10))
+    foreColor=$((foreColor + 10))
+    echo  "\033[${foreColor};${backColor}m"
+}
+
+
+function Color.getFormatColor(){
+    local backColor=$(Color.getBackground)
+    local foreColor=$(Color.getForeground)
+    echo  "\033[${backColor};${foreColor}m"
+}
+
 
 
 
