@@ -3,6 +3,7 @@
 ChooseKey="choose"
 InputKey="input"
 StyleKey="style"
+ConfirmKey="confirm"
 
 ConfigFirst=0
 if [[ $ConfigFirst == 0 ]]; then
@@ -56,6 +57,7 @@ declare -A ConfigParams
 ConfigParams[$ChooseKey]=1
 ConfigParams[$InputKey]=1
 ConfigParams[$StyleKey]=1
+ConfigParams[$ConfirmKey]=1
 
 
 function Config.checkBiuParams() {

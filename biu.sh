@@ -3,6 +3,7 @@
 source ./choose.sh
 source ./config.sh
 source ./style.sh
+source ./confirm.sh
 
 
 # # get Biu type
@@ -55,7 +56,9 @@ if [[ $mCheckFirstParams == 2 ]]; then
         $StyleKey)
             Style.checkPmarm $@
             ;;
-    
+        $ConfirmKey)
+            Confirm.checkPmarm $@
+            ;;
     esac
 fi
 
@@ -110,6 +113,12 @@ function Biu.Style(){
     Style.run
 }
 
+# run Biu.confirm
+function Biu.confirm(){
+    Confirm.run
+}
+
+
 # run command
 case "$optFirst" in
     $ChooseKey)
@@ -120,5 +129,8 @@ case "$optFirst" in
         ;;
     $StyleKey)
         Biu.Style
+        ;;
+    $ConfirmKey)
+        Biu.confirm
         ;;
 esac

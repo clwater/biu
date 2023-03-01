@@ -62,8 +62,17 @@ function setForeground() {
     saveConfig BiuColorForeground $1
 }
 
+# echo -e "\033[0;0m 默认 \033[0m" 
+function Color.getFormatColor(){
+    local backColor=$(Color.getBackground)
+    local foreColor=$(Color.getForeground)
+    echo  "\033[${backColor};${foreColor}m"
+}
+
 function Color.getBackground() {
-    echo "${Colors[$BiuColorBackground]}"
+    local backColor=${Colors[$BiuColorBackground]}
+    backColor=$((backColor + 10))
+    echo "$backColor"
 }
 
 function Color.getForeground() {

@@ -106,7 +106,7 @@ function showChoose() {
     tput rc
     tput ed
     local colorSTC="\033[0m"
-    local colorSTS="\033[$(Color.getForeground)m"
+    local colorSTS=$(Color.getFormatColor)
     local colorReset="\033[0m"
 
     # init show choose start and end 
