@@ -1,14 +1,41 @@
 #/!bin/bash
 
+_BIU_STYLE_BACKGROUND="default"
+_BIU_STYLE_FOREGROUND="sky"
+
 StyleFirst=0
+
+
+configFile="style.config"
+
+
+BiuColorBackground=$_BIU_STYLE_BACKGROUND
+BiuColorForeground=$_BIU_STYLE_FOREGROUND
+
+
+function saveConfig(){
+    sed -i "s/$1=.*/$1=$2/g" $configFile
+
+}
+
+function readConfig(){
+    local _config=`cat $configFile | grep $1`
+    local _config_len=${#1}
+    ((_config_len++))
+    _config=${_config:$_config_len}
+    echo $_config
+}
+
 if [[ $StyleFirst == 0 ]]; then
     source ./config.sh
     StyleFirst=1
+
+    BiuColorBackground=$(readConfig BiuColorBackground)
+    BiuColorForeground=$(readConfig BiuColorForeground)
+
 fi
 
 
-Color_Background="default"
-Color_Foreground="sky"
 
 declare -A Colors
 
@@ -24,20 +51,23 @@ Colors["white"]="37"
 
 
 
-function Color.setBackground() {
-    Color_Background=$1
+
+function setBackground() {
+    BiuColorBackground=$1
+    saveConfig BiuColorBackground $1
 }
 
-function Color.setForeground() {
-    Color_Foreground=$1
+function setForeground() {
+    BiuColorForeground=$1
+    saveConfig BiuColorForeground $1
 }
 
 function Color.getBackground() {
-    echo "${Colors[$Color_Background]}"
+    echo "${Colors[$BiuColorBackground]}"
 }
 
 function Color.getForeground() {
-    echo "${Colors[$Color_Foreground]}"
+    echo "${Colors[$BiuColorForeground]}"
 }
 
 
@@ -45,7 +75,7 @@ function Color.getForeground() {
 
 # run choose
 function Style.run() {
-    echo "run run"
+    echo "Style run"
 }
 
 function Style.help(){
@@ -54,9 +84,8 @@ function Style.help(){
 }
 
 function resetStyle(){
-    rm style.config 
-    cp style.config.default style.config
-    # todo load config from style.config
+    setBackground $_BIU_STYLE_BACKGROUND
+    setForeground $_BIU_STYLE_FOREGROUND
 }
 
 function Style.helpParamsColor(){
@@ -114,7 +143,7 @@ function Style.checkPmarm(){
             if [[ ${Colors[$backgroundColor]} == "" ]]; then
                 Style.helpParamsColor $2
             fi
-            Color_Background=$backgroundColor
+            setBackground $backgroundColor
             shift
             ;;
         --foreground)
@@ -125,7 +154,7 @@ function Style.checkPmarm(){
             if [[ ${Colors[$foregroundColor]} == "" ]]; then
                 Style.helpParamsColor $2
             fi
-            Color_Foreground=$foregroundColor
+            setForeground $foregroundColor
             shift
             ;;
         --reset)
