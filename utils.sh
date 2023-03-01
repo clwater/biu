@@ -15,11 +15,11 @@ function Utils.readTemp(){
 }
 
 function Utils.hideCursor(){
-    echo -e "\033[?25l"
+    echo -e -n "\033[?25l"
 }
 
 function Utils.showCursor(){
-    echo -e "\033[?25h"
+    echo -e -n "\033[?25h"
 }
 
 
