@@ -4,6 +4,7 @@ ConfigFirst=0
 if [[ $ConfigFirst == 0 ]]; then
     source ./config.sh
     source ./style.sh
+    source ./utils.sh
     ConfigFirst=1
 fi
 
@@ -12,7 +13,7 @@ _CONFIRM_DEFAULT_AFFIRMATIVE_TEXT="Yes"
 _CONFIRM_DEFAULT_MESSAGE="Are you sure?"
 _CONFIRM_DEFAULT_CHOICE=1
 
-_DEFAULT_CHOOSE_WIDTH=30
+_DEFAULT_CHOOSE_WIDTH=20
 
 mConfirmNegativeText=$_CONFIRM_DEFAULT_NEGATIVE_TEXT
 mConfirmAffirmativeText=$_CONFIRM_DEFAULT_AFFIRMATIVE_TEXT
@@ -20,45 +21,100 @@ mConfirmMessage=$_CONFIRM_DEFAULT_MESSAGE
 mConfirmChoice=$_CONFIRM_DEFAULT_CHOICE
 mConfirmWidth=$_DEFAULT_CHOOSE_WIDTH
 
-# function center(){
+
+
+# function checkInput() {
+#     while true; do
+#         key=$(KeyBoard.input)
+#         # run command
+#         case "$key" in
+#             $KeyBoard_LEFT)
+#                 ((mChooseIndex-=$chooseParamsHeight))
+#                 if [ $mChooseIndex -lt 0 ]; then
+#                     mChooseIndex=0
+#                 fi
+#                 ;;
+#             $KeyBoard_RIGHT)
+#                 ((mChooseIndex+=$chooseParamsHeight))
+#                 if [ $mChooseIndex -gt $mChooseMaxIndex ]; then
+#                     mChooseIndex=$mChooseMaxIndex
+#                 fi
+#                 ;;
+#             $KeyBoard_ENTER)
+#                 if [[ $chooseParamsLimit == 1 || $chooseParamsStrict == $ConfigOff ]]; then
+#                     returnChooseItem
+#                     break
+#                 else
+#                     if [ $chooseItemCount -lt $chooseParamsLimit ]; then
+#                         if [[ $chooseParamsErrorInfo == $ConfigOn ]]; then
+#                             showError 2
+#                         fi
+#                     else 
+#                         returnChooseItem
+#                         break
+#                     fi
+#                 fi
+#                 ;;
+#         esac
+
+#         if [[ $mChooseIndex -lt 0 ]]; then
+#             mChooseIndex=$mChooseMaxIndex
+#         fi
+
+#         if [[ $mChooseIndex -gt $mChooseMaxIndex ]]; then
+#             mChooseIndex=0
+#         fi
+
+#         showChoose
+#     done
 # }
 
+function showChoice(){
+    local colorReset="\033[0m"
+    local color=$(Color.getFormatColor)
+    echo -e -n "$color$1$ColorReset"
+}
 
+function showChoiceCommon(){
+    echo -e -n "$colorReset$1$ColorReset"
+}
 
 function show() {
     local colorReverse=$(Color.getBackgroundReverse)
     local colorReset="\033[0m"
     local emptyLine=$(printf "%${mConfirmWidth}s" "")
-    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
-    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
-    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
-    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
-    printf "%b\n" "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
+    echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
 
-    tput sc
+    # Utils.hideCursor
     # get mConfirmMessage length
     local messageLen=${#mConfirmMessage}
     local negativeLen=${#mConfirmNegativeText}
     local affirmativeLen=${#mConfirmAffirmativeText}
-    
-    tput cuu 4          
-    # move to center
-    tput cuf $((mConfirmWidth/2 - messageLen/2)) 
+
+
+    echo -e -n "\033[4A"
+    local index=$((mConfirmWidth/2 - messageLen/2)) 
+    echo -e -n "\033[${index}C"
     echo "$mConfirmMessage"
 
-    tput rc
+    echo -e -n "\033[1B"
 
-    tput cuu 2
-    tput sc
-
-    tput cuf $((mConfirmWidth/4 - negativeLen/2))
+    local index=$((mConfirmWidth/4 - negativeLen/2)) 
+    echo -e -n "\033[${index}C"
     echo -n "$mConfirmNegativeText"
+    echo -e -n "\r"
 
-    # move to line start
-    tput  rc
-    tput cuf $((mConfirmWidth/2 + affirmativeLen/2))
+    local index=$((mConfirmWidth/2 + mConfirmWidth/4 - affirmativeLen/2))
+    echo -e -n "\033[${index}C"
     
-    echo "$mConfirmAffirmativeText"
+    showChoice "$mConfirmAffirmativeText"
+    # echo "$mConfirmAffirmativeText"
+
+    Utils.showCursor
 
 }
 
@@ -90,7 +146,7 @@ function Confirm.help(){
 
 
 function Confirm.checkPmarm(){
-    echo "Confirm.checkPmarm"
+    # echo "Confirm.checkPmarm"
 
 
     ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,message:: -- "$@")
