@@ -50,6 +50,14 @@ Colors["sky"]="36"
 Colors["white"]="37"
 
 
+function Color.getColor(){
+    echo "${Colors[$1]}"
+}
+
+function Color.getColorFormat(){
+    local color=${Colors[$1]}
+    echo "\033[${color}m"
+}
 
 
 function setBackground() {
@@ -74,23 +82,6 @@ function Color.getForeground() {
 }
 
 
-function Color.getBackgroundReverse(){
-    local backColor=30
-    # local backColor=$(Color.getBackground)
-    local foreColor=$(Color.getForeground)
-    # backColor=$((backColor - 10))
-    foreColor=$((foreColor + 10))
-    echo  "\033[${foreColor};${backColor}m"
-}
-
-
-function Color.getFormatColorReverse(){
-    local backColor=$(Color.getBackground)
-    local foreColor=$(Color.getForeground)
-    backColor=$((backColor - 10))
-    foreColor=$((foreColor + 10))
-    echo  "\033[${foreColor};${backColor}m"
-}
 
 
 function Color.getFormatColor(){

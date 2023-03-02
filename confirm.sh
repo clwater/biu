@@ -8,31 +8,40 @@ if [[ $ConfigFirst == 0 ]]; then
     ConfigFirst=1
 fi
 
+
+
+
+# default config
 _CONFIRM_DEFAULT_NEGATIVE_TEXT="No"
 _CONFIRM_DEFAULT_AFFIRMATIVE_TEXT="Yes"
 _CONFIRM_DEFAULT_MESSAGE="Are you sure?"
 _CONFIRM_DEFAULT_CHOICE=1
-
 _DEFAULT_CHOOSE_WIDTH=20
 
+
+# default config
 mConfirmNegativeText=$_CONFIRM_DEFAULT_NEGATIVE_TEXT
 mConfirmAffirmativeText=$_CONFIRM_DEFAULT_AFFIRMATIVE_TEXT
 mConfirmMessage=$_CONFIRM_DEFAULT_MESSAGE
 mConfirmChoice=$_CONFIRM_DEFAULT_CHOICE
 mConfirmWidth=$_DEFAULT_CHOOSE_WIDTH
 
-mConfirmStyleDialogBackground="\033[46;30m"
-mConfirmStyleItemSelectColor="\033[0;31m"
-mConfirmStyleItemUnSelectColor="\033[0;36m"
+# default style
+mConfirmStyleDialogBackground=$(Color.getFormatColor)
+mConfirmStyleItemSelectColor=$(Color.getFormatColor)
+mConfirmStyleItemUnSelectColor="\033[0m"
 
+# show button in choose
 function showChoice(){
-    local colorReset="\033[0m"
-    echo -e -n "$mConfirmStyleItemSelectColor$1$ColorReset"
+    echo -e -n "$mConfirmStyleItemSelectColor"
+    echo -e -n "\033[4m$1"
+    echo -e -n "\033[0m"
 }
 
+# show button in no choose
 function showChoiceCommon(){
-    local colorReset="\033[0m"
     echo -e -n "$mConfirmStyleItemUnSelectColor$1$ColorReset"
+    echo -e -n "\033[0m"
 }
 
 function clear(){
@@ -40,22 +49,27 @@ function clear(){
     tput ed
 }
 
+# show choose button
 function showChoiceButton(){
     local negativeLen=${#mConfirmNegativeText}
     local affirmativeLen=${#mConfirmAffirmativeText}
+    # move to left and cacluate index of negative
     echo -e -n "\r"
     local index=$((mConfirmWidth/4 - negativeLen/2)) 
     echo -e -n "\033[${index}C"
+    # check choose
     if [ $mConfirmChoice -eq 0 ]; then
         showChoice "$mConfirmNegativeText"
     else
         showChoiceCommon "$mConfirmNegativeText"
     fi
     
+    # move to left and cacluate index of affirmative
     echo -e -n "\r"
     local index=$((mConfirmWidth/2 + mConfirmWidth/4 - affirmativeLen/2))
     echo -e -n "\033[${index}C"
 
+    # check choose
     if [ $mConfirmChoice -eq 1 ]; then
         showChoice "$mConfirmAffirmativeText"
     else
@@ -63,6 +77,7 @@ function showChoiceButton(){
     fi
 }
 
+# check user input
 function checkInput() {
     while true; do
         key=$(KeyBoard.input)
@@ -82,7 +97,9 @@ function checkInput() {
                 ;;
             $KeyBoard_ENTER)
                 clear
-                echo -e "\033[0m$mConfirmChoice"
+                echo -e -n "\033[0m"
+                Utils.writeTemp "$mConfirmChoice"
+                Utils.showCursor
                 break
                 ;;
         esac
@@ -93,7 +110,9 @@ function checkInput() {
 
 
 function show() {
-    local colorReverse=$(Color.getBackgroundReverse)
+    # show dialog 
+    Utils.hideCursor
+    local colorReverse=$mConfirmStyleDialogBackground
     local colorReset="\033[0m"
     local emptyLine=$(printf "%${mConfirmWidth}s" "")
     echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
@@ -102,12 +121,9 @@ function show() {
     echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
     echo -e "$colorReverse$(printf "$emptyLine" "")$colorReset"
 
-    # Utils.hideCursor
-    # get mConfirmMessage length
     local messageLen=${#mConfirmMessage}
 
-
-
+    # move to base line
     echo -e -n "\033[4A"
     local index=$((mConfirmWidth/2 - messageLen/2)) 
     echo -e -n "\033[${index}C"
@@ -117,8 +133,6 @@ function show() {
 
     showChoiceButton
 
-    Utils.showCursor
-
 }
 
 function Confirm.run() {
@@ -126,7 +140,7 @@ function Confirm.run() {
     checkInput
 }
 
-
+# show helps
 function Confirm.helpParams(){
     if [ $# -gt 1 ]; then
         local _params="$@"
@@ -143,17 +157,40 @@ function Confirm.helpParams(){
     exit 1
 }
 
+# show helps
 function Confirm.help(){
-    echo "Confirm.help"
+    echo "biu confirm [options]"
+    echo "options:"
+    echo "  -h, --help"
+    echo "  -v, --version"
+    echo "  --negative <text>"
+    echo "  --affirmative <text>"
+    echo "  --message <text>"
+    echo "  --default <number>"
+    echo ""
+    exit 1
+}
+
+function Confirm.helpParamsColor(){
+    if [[ $1 == "" ]]; then
+        echo "you not set color"
+    else
+        echo "you set color[$1] is not support"
+    fi
+    
+    echo "support color is in:"
+    for key in ${!Colors[*]}; do
+        local color=${Colors[$key]}
+        echo -e "    $key: \033[${color}m$key\033[0m"
+    done
+    Confirm.help
 }
 
 
-
+# check params
 function Confirm.checkPmarm(){
     # echo "Confirm.checkPmarm"
-
-
-    ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,message:: -- "$@")
+    ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,message::,select-color::,un-select-color::, -- "$@")
     [ $? -ne 0 ] && Confirm.help && exit 1
     eval set -- "${ARGS}"
     while true; do
@@ -195,6 +232,28 @@ function Confirm.checkPmarm(){
             if [[ $mConfirmChoice != 0 && $mConfirmChoice != 1 ]]; then
                 Confirm.helpParams "--default" "0: negative" "1: affirmative"
             fi
+            shift
+            ;;
+        --select-color)
+            local color=$2
+            if [[ $color == "" ]]; then
+                Confirm.helpParamsColor ""
+            fi 
+            if [[ ${Colors[$color]} == "" ]]; then
+                Confirm.helpParamsColor $2
+            fi
+            mConfirmStyleItemSelectColor=$(Color.getColorFormat $color)
+            shift
+            ;;
+        --un-select-color)
+            local color=$2
+            if [[ $color == "" ]]; then
+                Confirm.helpParamsColor ""
+            fi 
+            if [[ ${Colors[$color]} == "" ]]; then
+                Confirm.helpParamsColor $2
+            fi
+            mConfirmStyleItemUnSelectColor=$(Color.getColorFormat $color)
             shift
             ;;
         --)

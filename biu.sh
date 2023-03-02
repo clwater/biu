@@ -116,6 +116,7 @@ function Biu.Style(){
 # run Biu.confirm
 function Biu.confirm(){
     Confirm.run  > /dev/tty
+    Utils.readTemp
 }
 
 
