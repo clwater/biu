@@ -186,11 +186,17 @@ function Confirm.helpParamsColor(){
     Confirm.help
 }
 
+function Confirm.setParma(){
+    if [[ $1 != "" ]]; then
+        mConfirmMessage=$1
+    fi
+}
+
 
 # check params
 function Confirm.checkPmarm(){
     # echo "Confirm.checkPmarm"
-    ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,message::,select-color::,un-select-color::, -- "$@")
+    ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,select-color::,un-select-color::, -- "$@")
     [ $? -ne 0 ] && Confirm.help && exit 1
     eval set -- "${ARGS}"
     while true; do
@@ -214,13 +220,6 @@ function Confirm.checkPmarm(){
             mConfirmAffirmativeText=$2
             if [[ $mConfirmAffirmativeText == "" ]]; then
                 Confirm.helpParams "--height"
-            fi
-            shift
-            ;;
-        --message)
-            mConfirmMessage=$2
-            if [[ $mConfirmMessage == "" ]]; then
-                Confirm.helpParams "--message"
             fi
             shift
             ;;

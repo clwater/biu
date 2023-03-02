@@ -115,6 +115,11 @@ function Biu.Style(){
 
 # run Biu.confirm
 function Biu.confirm(){
+    for i in "${params[@]}"; do
+        if [[ $i != -* ]]; then
+            Confirm.setParma "$i"
+        fi
+    done
     Confirm.run  > /dev/tty
     Utils.readTemp
 }
