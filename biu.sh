@@ -115,7 +115,7 @@ function Biu.Style(){
 
 # run Biu.confirm
 function Biu.confirm(){
-    Confirm.run
+    Confirm.run  > /dev/tty
 }
 
 

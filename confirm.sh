@@ -21,63 +21,76 @@ mConfirmMessage=$_CONFIRM_DEFAULT_MESSAGE
 mConfirmChoice=$_CONFIRM_DEFAULT_CHOICE
 mConfirmWidth=$_DEFAULT_CHOOSE_WIDTH
 
-
-
-# function checkInput() {
-#     while true; do
-#         key=$(KeyBoard.input)
-#         # run command
-#         case "$key" in
-#             $KeyBoard_LEFT)
-#                 ((mChooseIndex-=$chooseParamsHeight))
-#                 if [ $mChooseIndex -lt 0 ]; then
-#                     mChooseIndex=0
-#                 fi
-#                 ;;
-#             $KeyBoard_RIGHT)
-#                 ((mChooseIndex+=$chooseParamsHeight))
-#                 if [ $mChooseIndex -gt $mChooseMaxIndex ]; then
-#                     mChooseIndex=$mChooseMaxIndex
-#                 fi
-#                 ;;
-#             $KeyBoard_ENTER)
-#                 if [[ $chooseParamsLimit == 1 || $chooseParamsStrict == $ConfigOff ]]; then
-#                     returnChooseItem
-#                     break
-#                 else
-#                     if [ $chooseItemCount -lt $chooseParamsLimit ]; then
-#                         if [[ $chooseParamsErrorInfo == $ConfigOn ]]; then
-#                             showError 2
-#                         fi
-#                     else 
-#                         returnChooseItem
-#                         break
-#                     fi
-#                 fi
-#                 ;;
-#         esac
-
-#         if [[ $mChooseIndex -lt 0 ]]; then
-#             mChooseIndex=$mChooseMaxIndex
-#         fi
-
-#         if [[ $mChooseIndex -gt $mChooseMaxIndex ]]; then
-#             mChooseIndex=0
-#         fi
-
-#         showChoose
-#     done
-# }
+mConfirmStyleDialogBackground="\033[46;30m"
+mConfirmStyleItemSelectColor="\033[0;31m"
+mConfirmStyleItemUnSelectColor="\033[0;36m"
 
 function showChoice(){
     local colorReset="\033[0m"
-    local color=$(Color.getFormatColor)
-    echo -e -n "$color$1$ColorReset"
+    echo -e -n "$mConfirmStyleItemSelectColor$1$ColorReset"
 }
 
 function showChoiceCommon(){
-    echo -e -n "$colorReset$1$ColorReset"
+    local colorReset="\033[0m"
+    echo -e -n "$mConfirmStyleItemUnSelectColor$1$ColorReset"
 }
+
+function clear(){
+    echo -e -n "\r\033[3A"
+    tput ed
+}
+
+function showChoiceButton(){
+    local negativeLen=${#mConfirmNegativeText}
+    local affirmativeLen=${#mConfirmAffirmativeText}
+    echo -e -n "\r"
+    local index=$((mConfirmWidth/4 - negativeLen/2)) 
+    echo -e -n "\033[${index}C"
+    if [ $mConfirmChoice -eq 0 ]; then
+        showChoice "$mConfirmNegativeText"
+    else
+        showChoiceCommon "$mConfirmNegativeText"
+    fi
+    
+    echo -e -n "\r"
+    local index=$((mConfirmWidth/2 + mConfirmWidth/4 - affirmativeLen/2))
+    echo -e -n "\033[${index}C"
+
+    if [ $mConfirmChoice -eq 1 ]; then
+        showChoice "$mConfirmAffirmativeText"
+    else
+        showChoiceCommon "$mConfirmAffirmativeText"
+    fi
+}
+
+function checkInput() {
+    while true; do
+        key=$(KeyBoard.input)
+        # run command
+        case "$key" in
+            $KeyBoard_LEFT)
+                if [ $mConfirmChoice -eq 1 ]; then
+                    mConfirmChoice=0
+                    showChoiceButton
+                fi
+                ;;
+            $KeyBoard_RIGHT)
+                if [ $mConfirmChoice -eq 0 ]; then
+                    mConfirmChoice=1
+                    showChoiceButton
+                fi
+                ;;
+            $KeyBoard_ENTER)
+                clear
+                echo -e "\033[0m$mConfirmChoice"
+                break
+                ;;
+        esac
+
+    done
+}
+
+
 
 function show() {
     local colorReverse=$(Color.getBackgroundReverse)
@@ -92,8 +105,7 @@ function show() {
     # Utils.hideCursor
     # get mConfirmMessage length
     local messageLen=${#mConfirmMessage}
-    local negativeLen=${#mConfirmNegativeText}
-    local affirmativeLen=${#mConfirmAffirmativeText}
+
 
 
     echo -e -n "\033[4A"
@@ -103,16 +115,7 @@ function show() {
 
     echo -e -n "\033[1B"
 
-    local index=$((mConfirmWidth/4 - negativeLen/2)) 
-    echo -e -n "\033[${index}C"
-    echo -n "$mConfirmNegativeText"
-    echo -e -n "\r"
-
-    local index=$((mConfirmWidth/2 + mConfirmWidth/4 - affirmativeLen/2))
-    echo -e -n "\033[${index}C"
-    
-    showChoice "$mConfirmAffirmativeText"
-    # echo "$mConfirmAffirmativeText"
+    showChoiceButton
 
     Utils.showCursor
 
@@ -120,6 +123,7 @@ function show() {
 
 function Confirm.run() {
     show
+    checkInput
 }
 
 
