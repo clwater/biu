@@ -30,14 +30,12 @@ biu choose "A" "B" "C" "D"
 ## doing
 
 * RoadMap 
-* Choose
 
 ## todo 
 
 * Input
 * Write
 * Filter
-* Confirm
 * File
 * Pager
 * Spin
@@ -46,4 +44,5 @@ biu choose "A" "B" "C" "D"
 
 ## finish
 
-* nothing
+* Confirm
+* Choose
