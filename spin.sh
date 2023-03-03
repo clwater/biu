@@ -1,17 +1,43 @@
 #!/bin/bash
 
+# use example from https://github.com/charmbracelet/bubbles/blob/master/spinner/spinner.go
 
-test=(0 1 2 3 4 5 6 7 8 9 )
+function showMoon(){
+    local spin=(🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘)
+    local spinNum=${#spin[@]}
+    local sleepTime=$(awk "BEGIN{print 1/$spinNum}")
+    local index=0
+    while true; do
+        echo -n ${spin[$index]}
+        index=$((index+1))
+        echo -e "\r\c"
+        if [ $index -eq $spinNum ]; then
+            index=0
+        fi
+        sleep $sleepTime
+    done
+}
+
+function ShowDot(){
+    local spin=(⣾ ⣽  ⣻  ⢿  ⡿  ⣟  ⣯  ⣷)
+    local spinNum=${#spin[@]}
+    local sleepTime=$(awk "BEGIN{print 1/$spinNum}")
+    local index=0
+    while true; do
+        echo -n ${spin[$index]}
+        index=$((index+1))
+        echo -e "\r\c"
+        if [ $index -eq $spinNum ]; then
+            index=0
+        fi
+        sleep $sleepTime
+    done
+}
 
 # run choose
 function Spin.run() {
     echo "Spin run"
-    local index=0
-    while true; do
-        echo ${test[$index]}
-        index=$((index+1))
-        sleep 0.1
-    done
+    showMoon
 }
 
 function Spin.help(){
