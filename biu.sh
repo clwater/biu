@@ -4,6 +4,7 @@ source ./choose.sh
 source ./config.sh
 source ./style.sh
 source ./confirm.sh
+source ./spin.sh
 
 
 # # get Biu type
@@ -58,6 +59,9 @@ if [[ $mCheckFirstParams == 2 ]]; then
             ;;
         $ConfirmKey)
             Confirm.checkPmarm $@
+            ;;
+        $SpinKey)
+            Spin.checkPmarm $@
             ;;
     esac
 fi
@@ -125,6 +129,10 @@ function Biu.confirm(){
 }
 
 
+function Biu.spin() {
+    Spin.run
+}
+
 # run command
 case "$optFirst" in
     $ChooseKey)
@@ -138,5 +146,8 @@ case "$optFirst" in
         ;;
     $ConfirmKey)
         Biu.confirm
+        ;;
+    $SpinKey)
+        Biu.spin
         ;;
 esac
