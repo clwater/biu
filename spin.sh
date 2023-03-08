@@ -2,6 +2,11 @@
 
 # use example from https://github.com/charmbracelet/bubbles/blob/master/spinner/spinner.go
 
+SpinFirst=0
+if [[ $SpinFirst == 0 ]]; then
+    SpinFirst=1
+    source ./utils.sh
+fi
 
 declare -A Spins
 
@@ -17,12 +22,17 @@ Spins["monkey"]="🙈 🙉 🙊"
 Spins["meter"]="▱▱▱ ▰▱▱ ▰▰▱ ▰▰▰ ▰▰▱ ▰▱▱ ▱▱▱"
 Spins["hamburger"]="☱ ☲ ☴ ☲"
 
+mStopTag=0
+
 function showSpin(){
+    echo "showSpin"
     local spin=(`echo ${Spins[$1]}`)  
     local spinNum=${#spin[@]}
     local sleepTime=$(awk "BEGIN{print 1/$spinNum}")
     local index=0
-    while true; do
+
+    
+    while [[ $(Utils.readTemp) == 0 ]] ; do
         echo -n ${spin[$index]}
         index=$((index+1))
         echo -e "\r\c"
@@ -30,14 +40,25 @@ function showSpin(){
             index=0
         fi
         sleep $sleepTime
+        # sleep 1
     done
+}
+
+
+function show(){
+    showSpin "moon"
+}
+
+function stop(){
+    Utils.writeTemp 1
 }
 
 # run choose
 function Spin.run() {
     echo "Spin run"
     Utils.hideCursor
-    showSpin "moon"
+    Utils.writeTemp 0
+    show 
 }
 
 function Spin.help(){
@@ -45,5 +66,71 @@ function Spin.help(){
 }
 
 function Spin.checkPmarm(){
-    echo "checkPmarm"
+        # echo "Confirm.checkPmarm"
+    ARGS=$(getopt -q -a -o vh -l version,help,affirmative::,negative::,default::,select-color::,un-select-color::, -- "$@")
+    [ $? -ne 0 ] && Confirm.help && exit 1
+    eval set -- "${ARGS}"
+    while true; do
+        case "$1" in
+        -h | --help)
+            Confirm.help
+            exit 1
+            ;;
+        -v | --version)
+            Config.version
+            exit 1
+            ;;
+        --negative)
+            mConfirmNegativeText=$2
+            if [[ $mConfirmNegativeText == "" ]]; then
+                Confirm.helpParams "--negative"
+            fi
+            shift
+            ;;
+        --affirmative)
+            mConfirmAffirmativeText=$2
+            if [[ $mConfirmAffirmativeText == "" ]]; then
+                Confirm.helpParams "--height"
+            fi
+            shift
+            ;;
+        --default)
+            mConfirmChoice=$2
+            if [[ $mConfirmChoice == "" ]]; then
+                Confirm.helpParams "--default" "0: negative" "1: affirmative"
+            fi
+            if [[ $mConfirmChoice != 0 && $mConfirmChoice != 1 ]]; then
+                Confirm.helpParams "--default" "0: negative" "1: affirmative"
+            fi
+            shift
+            ;;
+        --select-color)
+            local color=$2
+            if [[ $color == "" ]]; then
+                Confirm.helpParamsColor ""
+            fi 
+            if [[ ${Colors[$color]} == "" ]]; then
+                Confirm.helpParamsColor $2
+            fi
+            mConfirmStyleItemSelectColor=$(Color.getColorFormat $color)
+            shift
+            ;;
+        --un-select-color)
+            local color=$2
+            if [[ $color == "" ]]; then
+                Confirm.helpParamsColor ""
+            fi 
+            if [[ ${Colors[$color]} == "" ]]; then
+                Confirm.helpParamsColor $2
+            fi
+            mConfirmStyleItemUnSelectColor=$(Color.getColorFormat $color)
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        esac
+        shift
+    done
 }
