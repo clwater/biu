@@ -109,7 +109,7 @@ function checkInput() {
 
 
 
-function show() {
+function mConfirmshow() {
     # show dialog 
     Utils.hideCursor
     local colorReverse=$mConfirmStyleDialogBackground
@@ -136,7 +136,7 @@ function show() {
 }
 
 function Confirm.run() {
-    show
+    mConfirmshow
     checkInput
 }
 
