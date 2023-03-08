@@ -2,6 +2,11 @@
 
 # use example from https://github.com/charmbracelet/bubbles/blob/master/spinner/spinner.go
 
+SpinFirst=0
+if [[ $SpinFirst == 0 ]]; then
+    SpinFirst=1
+    source ./utils.sh
+fi
 
 declare -A Spins
 
@@ -17,6 +22,7 @@ Spins["monkey"]="🙈 🙉 🙊"
 Spins["meter"]="▱▱▱ ▰▱▱ ▰▰▱ ▰▰▰ ▰▰▱ ▰▱▱ ▱▱▱"
 Spins["hamburger"]="☱ ☲ ☴ ☲"
 
+mStopTag=0
 
 function showSpin(){
     echo "showSpin"
@@ -26,7 +32,7 @@ function showSpin(){
     local index=0
 
     
-    while true; do
+    while [[ $(Utils.readTemp) == 0 ]] ; do
         echo -n ${spin[$index]}
         index=$((index+1))
         echo -e "\r\c"
@@ -34,18 +40,25 @@ function showSpin(){
             index=0
         fi
         sleep $sleepTime
+        # sleep 1
     done
 }
 
+
 function show(){
     showSpin "moon"
+}
+
+function stop(){
+    Utils.writeTemp 1
 }
 
 # run choose
 function Spin.run() {
     echo "Spin run"
     Utils.hideCursor
-    show
+    Utils.writeTemp 0
+    show 
 }
 
 function Spin.help(){
