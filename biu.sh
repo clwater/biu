@@ -5,6 +5,7 @@ source ./config.sh
 source ./style.sh
 source ./confirm.sh
 source ./spin.sh
+source ./input.sh
 
 
 # # get Biu type

@@ -8,7 +8,7 @@ SpinKey="spin"
 
 ConfigFirst=0
 if [[ $ConfigFirst == 0 ]]; then
-    source ./input.sh
+    # source ./input.sh
     ConfigFirst=1
 fi
 

@@ -72,6 +72,9 @@ function KeyBoard.input() {
         $'\x20') # 空格
             echo $KeyBoard_SPACE
             ;;
+        *)
+            echo $key
+            ;;
     esac
 
 }
