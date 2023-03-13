@@ -25,27 +25,45 @@ function showInputText(){
     echo -e -n "\033[u"
     echo -e -n "\033[K"
     echo -e -n "\033[5m" 
+    echo -e -n "\033[0m"
+    stText=${currentInput: 0 :$currentIndex}
+    endText=${currentInput: $currentIndex}
+    echo -n "$stText"
+    echo -e -n "\033[5m" 
     echo -n "|"
     echo -e -n "\033[0m"
-    echo -n "$currentInput"
+    echo -n "$endText"
+    # echo -n "$currentInput"
+}
+
+function returnInput(){
+    Utils.writeTemp $currentInput
 }
 
 function inputAddkey(){
     case "$1" in
         $KeyBoard_LEFT)
-            if [ $currentIndex -gt 0 ]; then
-                currentIndex=$((currentIndex-1))
-                echo -e -n "\033[1D"
+            ((currentIndex--))
+            if [ $currentIndex -lt 0 ]; then
+                currentIndex=0
             fi
             ;;
         $KeyBoard_RIGHT)
-            if [ $currentIndex -lt ${#currentInput} ]; then
-                currentIndex=$((currentIndex+1))
-                echo -e -n "\033[1C"
+            ((currentIndex++))
+            if [ $currentIndex -gt ${#currentInput} ]; then
+                currentIndex=${#currentInput}
             fi
             ;;
+        $KeyBoard_ENTER)
+            returnInput
+            ;;
         **)
-            currentInput="$currentInput$1"
+            # ((currentIndex++))
+            # currentInput="$currentInput$1"
+            stText=${currentInput: 0 :$currentIndex}
+            endText=${currentInput: $currentIndex}
+            currentInput="$stText$1$endText"
+            ((currentIndex++))
             ;;
     esac
     showInputText

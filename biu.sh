@@ -110,6 +110,7 @@ function Biu.Choose(){
 # run Biu.Input
 function Biu.Input(){
     Input.run > /dev/tty
+    Utils.readTemp
 }
 
 

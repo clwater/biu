@@ -28,7 +28,6 @@ function KeyBoard.input() {
     if [ "$key" = $'\x1b\x4f\x46' ]; then
         key=$'\x1b\x5b\x34\x7e'
     fi
-
     case "$key" in
         $'\x1b\x5b\x32\x7e') # 插入
             echo Insert Key
